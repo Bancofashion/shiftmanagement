@@ -2,7 +2,7 @@ import time
 import socket
 import os
 
-host = os.getenv("DB_HOST", "localhost")
+host = os.getenv("DB_HOST", "db")
 port = 3306
 
 print(f"Trying to connect to MySQL at {host}:{port}...")
