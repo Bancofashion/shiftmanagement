@@ -30,21 +30,34 @@ export class LocationRatesApi {
   async createRate(rate: LocationRateCreate): Promise<LocationRate> {
     try {
       const url = `${baseUrl}/location-rates`;
-      console.log('Creating location rate at:', url);
+      console.log('Creating location rate with data:', JSON.stringify(rate, null, 2));
+      
       const response = await api.post<LocationRate>(url, rate);
+      console.log('Create rate response:', response);
       return response.data;
     } catch (error: any) {
-      console.error('Error creating location rate:', {
+      console.error('Detailed error creating location rate:', {
         message: error.message,
         status: error.response?.status,
         data: error.response?.data,
-        config: error.config
+        config: error.config,
+        url: error.config?.url,
+        requestData: error.config?.data
       });
       
+      // Try to get more specific error message
+      let errorMessage = 'Failed to create location rate';
       if (error.response?.data?.detail) {
-        throw new Error(JSON.stringify(error.response.data.detail));
+        errorMessage = typeof error.response.data.detail === 'string' 
+          ? error.response.data.detail 
+          : JSON.stringify(error.response.data.detail);
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.message) {
+        errorMessage = error.message;
       }
-      throw error;
+      
+      throw new Error(errorMessage);
     }
   }
 

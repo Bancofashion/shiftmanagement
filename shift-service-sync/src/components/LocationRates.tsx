@@ -123,17 +123,21 @@ export const LocationRates: React.FC = () => {
     if (!selectedLocation || !selectedPassType) return;
 
     try {
-      const newRate = await locationRatesApi.create({
+      // Ensure all rates are properly formatted numbers
+      const formattedRates = {
         location_id: selectedLocation,
         pass_type: selectedPassType,
-        base_rate: parseFloat(baseRate),
-        evening_rate: parseFloat(eveningRate),
-        night_rate: parseFloat(nightRate),
-        weekend_rate: parseFloat(weekendRate),
-        holiday_rate: parseFloat(holidayRate),
-        new_years_eve_rate: parseFloat(newYearsEveRate),
-      });
+        base_rate: Number(parseFloat(baseRate).toFixed(2)),
+        evening_rate: Number(parseFloat(eveningRate).toFixed(2)),
+        night_rate: Number(parseFloat(nightRate).toFixed(2)),
+        weekend_rate: Number(parseFloat(weekendRate).toFixed(2)),
+        holiday_rate: Number(parseFloat(holidayRate).toFixed(2)),
+        new_years_eve_rate: Number(parseFloat(newYearsEveRate).toFixed(2))
+      };
 
+      console.log('Submitting rates:', formattedRates);
+
+      const newRate = await locationRatesApi.create(formattedRates);
       setRates([...rates, newRate]);
       
       // Reset form
@@ -145,6 +149,8 @@ export const LocationRates: React.FC = () => {
       setWeekendRate('');
       setHolidayRate('');
       setNewYearsEveRate('');
+      setError(null);
+      setValidationErrors([]);
     } catch (error: any) {
       console.error('Error creating rate:', error);
       let errorMessage = 'Failed to create rate';
