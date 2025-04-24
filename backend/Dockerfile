@@ -2,10 +2,22 @@ FROM python:3.11
 
 WORKDIR /app
 
-# Copy requirements first to leverage Docker cache
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-RUN pip install pymysql
+# Update pip and install packages one by one
+RUN pip install --no-cache-dir --upgrade pip
+RUN pip install --no-cache-dir fastapi==0.88.0
+RUN pip install --no-cache-dir uvicorn==0.20.0
+RUN pip install --no-cache-dir sqlalchemy==1.4.23
+RUN pip install --no-cache-dir pymysql
+RUN pip install --no-cache-dir python-jose[cryptography]
+RUN pip install --no-cache-dir passlib[bcrypt]
+RUN pip install --no-cache-dir python-multipart
+RUN pip install --no-cache-dir email-validator
+RUN pip install --no-cache-dir python-dotenv
+RUN pip install --no-cache-dir apscheduler
+RUN pip install --no-cache-dir requests
+RUN pip install --no-cache-dir reportlab
+RUN pip install --no-cache-dir Pillow
+RUN pip install --no-cache-dir python-dateutil
 
 # Copy the rest of the application
 COPY . .
