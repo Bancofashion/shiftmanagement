@@ -255,11 +255,11 @@ class AutoApproval(Base):
     __tablename__ = "auto_approval"
 
     id = Column(Integer, primary_key=True, index=True)
-    employee_id = Column(String, index=True)
-    location = Column(String, index=True)
+    employee_id = Column(String(50), index=True)
+    location = Column(String(100), index=True)
     auto_approve = Column(Boolean, default=True)
     priority_hours = Column(Integer, default=3)
-    pass_type = Column(String, default='green')
+    pass_type = Column(String(20), default='green')
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
