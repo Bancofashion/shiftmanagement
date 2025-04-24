@@ -2,7 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/AuthContext';
 import { locationRatesApi, locationsApi } from '@/lib/api';
 import { Location, LocationRate } from '@/lib/types';
-import { toast } from 'react-toastify';
+
+interface Notification {
+  type: 'success' | 'error';
+  message: string;
+}
 
 // Debug logging
 console.log('locationRatesApi:', locationRatesApi);
@@ -24,6 +28,17 @@ export const LocationRates: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [notification, setNotification] = useState<Notification | null>(null);
+
+  // Auto-hide notification after 3 seconds
+  useEffect(() => {
+    if (notification) {
+      const timer = setTimeout(() => {
+        setNotification(null);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [notification]);
 
   // Add useEffect to calculate rates when base rate changes
   useEffect(() => {
@@ -53,7 +68,7 @@ export const LocationRates: React.FC = () => {
       setLocations(data);
     } catch (error) {
       console.error('Error fetching locations:', error);
-      toast.error('Failed to fetch locations. Please try again later.');
+      setNotification({ type: 'error', message: 'Failed to fetch locations. Please try again later.' });
     } finally {
       setIsLoading(false);
     }
@@ -78,7 +93,7 @@ export const LocationRates: React.FC = () => {
         return;
       }
       
-      toast.error('Failed to fetch rates. Please try again later.');
+      setNotification({ type: 'error', message: 'Failed to fetch rates. Please try again later.' });
     } finally {
       setIsLoading(false);
     }
@@ -97,7 +112,7 @@ export const LocationRates: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedLocation || !selectedPassType) {
-      toast.error('Please select a location and pass type');
+      setNotification({ type: 'error', message: 'Please select a location and pass type' });
       return;
     }
 
@@ -115,7 +130,7 @@ export const LocationRates: React.FC = () => {
       });
 
       setRates([...rates, newRate]);
-      toast.success('Rate created successfully');
+      setNotification({ type: 'success', message: 'Rate created successfully' });
       
       // Reset form
       setSelectedLocation(null);
@@ -128,7 +143,7 @@ export const LocationRates: React.FC = () => {
       setNewYearsEveRate('');
     } catch (error: any) {
       console.error('Error creating rate:', error);
-      toast.error(error.message || 'Failed to create rate');
+      setNotification({ type: 'error', message: error.message || 'Failed to create rate' });
     } finally {
       setIsLoading(false);
     }
@@ -143,10 +158,10 @@ export const LocationRates: React.FC = () => {
       setIsLoading(true);
       await locationRatesApi.deleteRate(rateId);
       setRates(rates.filter(rate => rate.id !== rateId));
-      toast.success('Rate deleted successfully');
+      setNotification({ type: 'success', message: 'Rate deleted successfully' });
     } catch (error: any) {
       console.error('Error deleting rate:', error);
-      toast.error(error.message || 'Failed to delete rate');
+      setNotification({ type: 'error', message: error.message || 'Failed to delete rate' });
     } finally {
       setIsLoading(false);
     }
@@ -169,6 +184,14 @@ export const LocationRates: React.FC = () => {
           <div className="bg-white p-4 rounded-lg">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
           </div>
+        </div>
+      )}
+
+      {notification && (
+        <div className={`fixed top-4 right-4 p-4 rounded-md shadow-lg z-50 ${
+          notification.type === 'success' ? 'bg-green-100 border border-green-400 text-green-700' : 'bg-red-100 border border-red-400 text-red-700'
+        }`}>
+          {notification.message}
         </div>
       )}
 
