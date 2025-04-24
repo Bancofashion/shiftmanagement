@@ -37,13 +37,35 @@ app = FastAPI(
 # Configure CORS - MUST BE BEFORE ANY ROUTES
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Frontend origins
+    allow_origins=["http://69.28.88.205"],  # Frontend domain
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=["*"],
     expose_headers=["*"],
     max_age=3600,  # Cache preflight requests for 1 hour
 )
+
+# Include routers
+app.include_router(auth_router, prefix="/api", tags=["auth"])
+app.include_router(users_router, prefix="/api", tags=["users"])
+app.include_router(planning_router, prefix="/api", tags=["planning"])
+app.include_router(facturatie_router, prefix="/api", tags=["facturatie"])
+app.include_router(opdrachtgevers_router, prefix="/api", tags=["opdrachtgevers"])
+app.include_router(export_router, prefix="/api", tags=["export"])
+app.include_router(tijdlijn_router, prefix="/api", tags=["tijdlijn"])
+app.include_router(favorieten_router, prefix="/api", tags=["favorieten"])
+app.include_router(agenda_router, prefix="/api", tags=["agenda"])
+app.include_router(auto_approval_router, prefix="/api", tags=["auto_approval"])
+app.include_router(dienstaanvragen_router, prefix="/api", tags=["dienstaanvragen"])
+app.include_router(factuursjablonen_router, prefix="/api", tags=["factuursjablonen"])
+app.include_router(dashboard_router, prefix="/api", tags=["dashboard"])
+app.include_router(tarieven_router, prefix="/api", tags=["tarieven"])
+app.include_router(pdf_export_router, prefix="/api", tags=["pdf_export"])
+app.include_router(verloning_router, prefix="/api", tags=["verloning"])
+app.include_router(employee_profiles_router, prefix="/api", tags=["employee_profiles"])
+app.include_router(payroll_router, prefix="/api", tags=["payroll"])
+app.include_router(medewerkers_router, prefix="/api", tags=["medewerkers"])
+app.include_router(locations_router, prefix="/api", tags=["locations"])
 
 # Create database tables and initialize admin on startup
 @app.on_event("startup")
@@ -65,28 +87,6 @@ async def startup_event():
 @app.get("/")
 async def root():
     return {"message": "Welkom bij het Planning en Facturatie Systeem!"}
-
-# ✅ Alle API-routers opnemen
-app.include_router(users_router)
-app.include_router(planning_router)
-app.include_router(facturatie_router)
-app.include_router(verloning_router)
-app.include_router(auth_router)
-app.include_router(opdrachtgevers_router)
-app.include_router(export_router)
-app.include_router(tijdlijn_router)
-app.include_router(favorieten_router)
-app.include_router(agenda_router)
-app.include_router(auto_approval_router)
-app.include_router(dienstaanvragen_router)
-app.include_router(factuursjablonen_router)
-app.include_router(dashboard_router)
-app.include_router(tarieven_router)
-app.include_router(pdf_export_router)
-app.include_router(employee_profiles_router)
-app.include_router(payroll_router)
-app.include_router(medewerkers_router)
-app.include_router(locations_router)
 
 # ✅ Start de server correct
 if __name__ == "__main__":
