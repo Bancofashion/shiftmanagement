@@ -579,18 +579,14 @@ async def create_location_rate(
         if 'admin' not in user_roles:
             raise HTTPException(status_code=403, detail="Access denied. Admin privileges required.")
         
-        # Validate rate multipliers
-        base_rate = rate.base_rate
-        if rate.evening_rate != base_rate * 1.1:
-            raise HTTPException(status_code=400, detail="Evening rate must be 10% higher than base rate")
-        if rate.night_rate != base_rate * 1.2:
-            raise HTTPException(status_code=400, detail="Night rate must be 20% higher than base rate")
-        if rate.weekend_rate != base_rate * 1.35:
-            raise HTTPException(status_code=400, detail="Weekend rate must be 35% higher than base rate")
-        if rate.holiday_rate != base_rate * 1.5:
-            raise HTTPException(status_code=400, detail="Holiday rate must be 50% higher than base rate")
-        if rate.new_years_eve_rate != base_rate * 2:
-            raise HTTPException(status_code=400, detail="New Year's Eve rate must be 100% higher than base rate")
+        # Validate location exists
+        location = db.query(Location).filter(Location.id == rate.location_id).first()
+        if not location:
+            raise HTTPException(status_code=400, detail=f"Location with ID {rate.location_id} not found")
+        
+        # Basic validation for rates
+        if rate.base_rate <= 0:
+            raise HTTPException(status_code=400, detail="Base rate must be positive")
         
         # Create new rate
         db_rate = LocationRate(
@@ -625,20 +621,19 @@ async def create_location_rate(
             "updated_at": db_rate.updated_at.isoformat(),
             "location": {
                 "id": db_rate.location.id,
-                "opdrachtgever_id": db_rate.location.opdrachtgever_id,
-                "naam": db_rate.location.naam,
-                "adres": db_rate.location.adres,
-                "stad": db_rate.location.stad,
-                "postcode": db_rate.location.postcode,
-                "provincie": db_rate.location.provincie,
-                "email": db_rate.location.email
+                "naam": db_rate.location.naam
             } if db_rate.location else None
         }
         
         return rate_dict
+    except HTTPException:
+        raise
     except Exception as e:
-        print(f"Error creating location rate: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Failed to create location rate: {str(e)}")
+        logger.error(f"Error creating location rate: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=500, 
+            detail=f"Failed to create location rate: {str(e)}"
+        )
 
 @router.delete("/location-rates/{rate_id}")
 async def delete_location_rate(
