@@ -28,7 +28,8 @@ const AutoApprovalSettings: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [newSetting, setNewSetting] = useState<Partial<AutoApprovalSetting>>({
         auto_approve: true,
-        priority_hours: 3
+        priority_hours: 3,
+        pass_type: 'green'
     });
     const [locations, setLocations] = useState<string[]>([]);
     const [employees, setEmployees] = useState<{ id: string; name: string; username: string }[]>([]);
@@ -90,7 +91,8 @@ const AutoApprovalSettings: React.FC = () => {
             setSettings(prev => [...prev, createdSetting]);
             setNewSetting({
                 auto_approve: true,
-                priority_hours: 3
+                priority_hours: 3,
+                pass_type: 'green'
             });
             toast({
                 title: 'Success',
@@ -211,6 +213,22 @@ const AutoApprovalSettings: React.FC = () => {
                         </Select>
                     </div>
 
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Pass Type</label>
+                        <Select
+                            value={newSetting.pass_type}
+                            onValueChange={(value) => setNewSetting({ ...newSetting, pass_type: value as 'green' | 'blue' })}
+                        >
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select Pass Type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="green">Green Pass</SelectItem>
+                                <SelectItem value="blue">Blue Pass</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+
                     <div className="flex items-center space-x-2">
                         <Switch
                             checked={newSetting.auto_approve}
@@ -231,6 +249,7 @@ const AutoApprovalSettings: React.FC = () => {
                         <TableRow>
                             <TableHead>Employee</TableHead>
                             <TableHead>Location</TableHead>
+                            <TableHead>Pass Type</TableHead>
                             <TableHead>Auto-approve</TableHead>
                             <TableHead>Priority Hours</TableHead>
                             <TableHead>Actions</TableHead>
@@ -243,6 +262,22 @@ const AutoApprovalSettings: React.FC = () => {
                                     {employees.find(e => e.id === setting.employee_id)?.name || setting.employee_id}
                                 </TableCell>
                                 <TableCell>{setting.location}</TableCell>
+                                <TableCell>
+                                    <Select
+                                        value={setting.pass_type}
+                                        onValueChange={(value) =>
+                                            handleUpdateSetting(setting.id!, { ...setting, pass_type: value as 'green' | 'blue' })
+                                        }
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="green">Green Pass</SelectItem>
+                                            <SelectItem value="blue">Blue Pass</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </TableCell>
                                 <TableCell>
                                     <Switch
                                         checked={setting.auto_approve}

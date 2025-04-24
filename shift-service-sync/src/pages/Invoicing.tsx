@@ -102,7 +102,7 @@ export default function Invoicing() {
   const [paymentTerms, setPaymentTerms] = useState(14);
   const { toast } = useToast();
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
-  const [selectedPassType, setSelectedPassType] = useState<string>('standard');
+  const [selectedPassType, setSelectedPassType] = useState<string>('green');
   const [locationRates, setLocationRates] = useState<LocationRate[]>([]);
 
   // Add delete mutation
@@ -766,8 +766,8 @@ export default function Invoicing() {
                       <SelectValue placeholder="Select pass type" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="standard">Standard</SelectItem>
-                      <SelectItem value="premium">Premium</SelectItem>
+                      <SelectItem value="green">Green Pass</SelectItem>
+                      <SelectItem value="blue">Blue Pass</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

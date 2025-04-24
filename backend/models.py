@@ -252,13 +252,16 @@ class Factuursjabloon(Base):
     opdrachtgever = relationship("Opdrachtgever", back_populates="factuursjablonen")
 
 class AutoApproval(Base):
-    __tablename__ = "auto_approvals"
+    __tablename__ = "auto_approval"
 
     id = Column(Integer, primary_key=True, index=True)
-    employee_id = Column(String(50), ForeignKey("users.username"))
-    location = Column(String(100))
-    auto_approve = Column(Boolean, default=False)
-    priority_hours = Column(Integer, default=3)  # Default priority window of 3 hours
+    employee_id = Column(String, index=True)
+    location = Column(String, index=True)
+    auto_approve = Column(Boolean, default=True)
+    priority_hours = Column(Integer, default=3)
+    pass_type = Column(String, default='green')
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     employee = relationship("User")
 

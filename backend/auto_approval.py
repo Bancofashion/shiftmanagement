@@ -17,6 +17,8 @@ class AutoApprovalSetting(BaseModel):
     employee_id: str
     location: str
     auto_approve: bool
+    priority_hours: Optional[int] = 3
+    pass_type: str = 'green'
 
     class Config:
         orm_mode = True
@@ -106,6 +108,8 @@ async def create_auto_approval_setting(
     if existing_setting:
         # Update existing setting
         existing_setting.auto_approve = setting.auto_approve
+        existing_setting.priority_hours = setting.priority_hours
+        existing_setting.pass_type = setting.pass_type
         db.commit()
         db.refresh(existing_setting)
         print(f"Updated existing auto-approval setting: {existing_setting.__dict__}")
@@ -115,7 +119,9 @@ async def create_auto_approval_setting(
     db_setting = AutoApproval(
         employee_id=setting.employee_id,
         location=setting.location,
-        auto_approve=setting.auto_approve
+        auto_approve=setting.auto_approve,
+        priority_hours=setting.priority_hours,
+        pass_type=setting.pass_type
     )
     db.add(db_setting)
     
@@ -143,6 +149,8 @@ async def update_auto_approval_setting(
     db_setting.employee_id = setting.employee_id
     db_setting.location = setting.location
     db_setting.auto_approve = setting.auto_approve
+    db_setting.priority_hours = setting.priority_hours
+    db_setting.pass_type = setting.pass_type
     
     db.commit()
     db.refresh(db_setting)

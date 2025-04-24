@@ -4,4 +4,5 @@ export interface AutoApprovalSetting {
     location: string;
     auto_approve: boolean;
     priority_hours?: number;
+    pass_type: 'green' | 'blue';
 } 
