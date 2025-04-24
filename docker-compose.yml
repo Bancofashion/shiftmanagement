@@ -6,7 +6,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=mysql://planner_user:planner_password@db:3306/planner_db
+      - DATABASE_URL=mysql://planner_user:q5nRgHumCV@db:3306/planner_db
       - SECRET_KEY=kY2hkWFErBgPf3t5
       - DEBUG=False
       - ALLOWED_HOSTS=69.28.88.205,localhost
@@ -32,7 +32,7 @@ services:
       MYSQL_ROOT_PASSWORD: root_password
       MYSQL_DATABASE: planner_db
       MYSQL_USER: planner_user
-      MYSQL_PASSWORD: planner_password
+      MYSQL_PASSWORD: q5nRgHumCV
     ports:
       - "3306:3306"
     volumes:
