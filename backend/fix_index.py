@@ -37,12 +37,17 @@ def fix_indexes():
             connection.execute(text("EXECUTE stmt"))
             connection.execute(text("DEALLOCATE PREPARE stmt"))
 
-            # Create new index
+            # Add generated column for year
             connection.execute(text("""
-                CREATE INDEX ix_facturen_year_client ON facturen (
-                    LEFT(factuurnummer, 4),
-                    opdrachtgever_id
-                )
+                ALTER TABLE facturen 
+                ADD COLUMN IF NOT EXISTS factuur_year VARCHAR(4) 
+                GENERATED ALWAYS AS (LEFT(factuurnummer, 4)) STORED
+            """))
+
+            # Create index on the generated column and opdrachtgever_id
+            connection.execute(text("""
+                CREATE INDEX ix_facturen_year_client 
+                ON facturen (factuur_year, opdrachtgever_id)
             """))
             
             logger.info("Successfully created index on facturen table")
