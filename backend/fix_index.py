@@ -6,10 +6,10 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Get database connection details from environment variables
-DB_USER = os.getenv("DB_USER", "root")
-DB_PASSWORD = os.getenv("DB_PASSWORD", "root")
+DB_USER = os.getenv("DB_USER", "planner_user")
+DB_PASSWORD = os.getenv("DB_PASSWORD", "planner_password")
 DB_HOST = os.getenv("DB_HOST", "db")
-DB_NAME = os.getenv("DB_NAME", "shiftmanagement")
+DB_NAME = os.getenv("DB_NAME", "planner_db")
 
 # Create database connection
 DATABASE_URL = f"mysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}"
