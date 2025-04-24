@@ -163,10 +163,6 @@ async def create_user(
     logger.info(f"Role requested: '{user.role}'")
     
     try:
-        # Start a transaction
-        db.begin()
-        logger.info("Transaction started")
-        
         # Check if username already exists
         db_user = db.query(User).filter(User.username == user.username).first()
         if db_user:
