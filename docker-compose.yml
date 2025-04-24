@@ -17,7 +17,7 @@ services:
       - planner_network
 
   frontend:
-    build: ./shift-service-sync
+    build: ./frontend
     ports:
       - "80:80"
     depends_on:
