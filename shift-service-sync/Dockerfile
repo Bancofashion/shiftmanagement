@@ -4,9 +4,9 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
-# Copy .env file and set environment variables
-COPY .env ./
-ENV VITE_API_URL=${VITE_API_URL}
+# Set environment variables for build
+ARG VITE_API_URL=http://69.28.88.205/api
+ENV VITE_API_URL=$VITE_API_URL
 RUN npm run build
 
 # Production stage
