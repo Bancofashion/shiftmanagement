@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/AuthContext';
 import { locationRatesApi, locationsApi } from '@/lib/api';
 import { Location, LocationRate } from '@/lib/types';
+import { toast } from 'react-toastify';
 
 // Debug logging
 console.log('locationRatesApi:', locationRatesApi);
@@ -20,6 +21,7 @@ export const LocationRates: React.FC = () => {
   const [weekendRate, setWeekendRate] = useState('');
   const [holidayRate, setHolidayRate] = useState('');
   const [newYearsEveRate, setNewYearsEveRate] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
@@ -46,65 +48,39 @@ export const LocationRates: React.FC = () => {
 
   const fetchLocations = async () => {
     try {
+      setIsLoading(true);
       const data = await locationsApi.getAll();
       setLocations(data);
     } catch (error) {
       console.error('Error fetching locations:', error);
+      toast.error('Failed to fetch locations. Please try again later.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const fetchRates = async () => {
     try {
-      const data = await locationRatesApi.getAll();
+      setIsLoading(true);
+      const data = await locationRatesApi.getRates();
       setRates(data);
       setValidationErrors([]);
     } catch (error: any) {
       console.error('Error fetching rates:', error);
       
       if (error.response?.status === 401) {
-        // Unauthorized - redirect to login
         window.location.href = '/login';
         return;
       }
       
       if (error.response?.status === 403) {
-        // Forbidden - user doesn't have required role
         setValidationErrors(['You do not have permission to view location rates']);
         return;
       }
       
-      if (error.response?.status === 422) {
-        // Validation error
-        const errorData = error.response.data;
-        if (Array.isArray(errorData.detail)) {
-          setValidationErrors(errorData.detail.map((err: any) => err.msg || err));
-        } else if (typeof errorData.detail === 'string') {
-          setValidationErrors([errorData.detail]);
-        } else if (errorData.detail) {
-          setValidationErrors([JSON.stringify(errorData.detail)]);
-        } else {
-          setValidationErrors(['Invalid data received from server']);
-        }
-        return;
-      }
-      
-      // Handle other errors
-      if (error.message) {
-        try {
-          const errorObj = JSON.parse(error.message);
-          if (Array.isArray(errorObj)) {
-            setValidationErrors(errorObj.map(err => err.msg || err));
-          } else if (typeof errorObj === 'string') {
-            setValidationErrors([errorObj]);
-          } else {
-            setValidationErrors([JSON.stringify(errorObj)]);
-          }
-        } catch (e) {
-          setValidationErrors([error.message]);
-        }
-      } else {
-        setValidationErrors(['An unexpected error occurred']);
-      }
+      toast.error('Failed to fetch rates. Please try again later.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -120,10 +96,14 @@ export const LocationRates: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedLocation || !selectedPassType) return;
+    if (!selectedLocation || !selectedPassType) {
+      toast.error('Please select a location and pass type');
+      return;
+    }
 
     try {
-      const newRate = await locationRatesApi.create({
+      setIsLoading(true);
+      const newRate = await locationRatesApi.createRate({
         location_id: selectedLocation,
         pass_type: selectedPassType,
         base_rate: parseFloat(baseRate),
@@ -135,6 +115,7 @@ export const LocationRates: React.FC = () => {
       });
 
       setRates([...rates, newRate]);
+      toast.success('Rate created successfully');
       
       // Reset form
       setSelectedLocation(null);
@@ -145,32 +126,52 @@ export const LocationRates: React.FC = () => {
       setWeekendRate('');
       setHolidayRate('');
       setNewYearsEveRate('');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating rate:', error);
+      toast.error(error.message || 'Failed to create rate');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleDelete = async (rateId: number) => {
+    if (!window.confirm('Are you sure you want to delete this rate?')) {
+      return;
+    }
+
     try {
-      await locationRatesApi.delete(rateId);
+      setIsLoading(true);
+      await locationRatesApi.deleteRate(rateId);
       setRates(rates.filter(rate => rate.id !== rateId));
-    } catch (error) {
+      toast.success('Rate deleted successfully');
+    } catch (error: any) {
       console.error('Error deleting rate:', error);
+      toast.error(error.message || 'Failed to delete rate');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   if (!user) {
-    return <div>Please log in to access this page.</div>;
+    return <div className="p-4 text-center">Please log in to access this page.</div>;
   }
 
   if (!user.roles.includes('admin')) {
-    return <div>Access denied. Admin privileges required.</div>;
+    return <div className="p-4 text-center">Access denied. Admin privileges required.</div>;
   }
 
   return (
     <div className="p-4">
       <h2 className="text-2xl font-bold mb-4">Location Rates Management</h2>
       
+      {isLoading && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-4 rounded-lg">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+          </div>
+        </div>
+      )}
+
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
           {error}
@@ -197,6 +198,7 @@ export const LocationRates: React.FC = () => {
               onChange={(e) => setSelectedLocation(Number(e.target.value))}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
               required
+              disabled={isLoading}
             >
               <option value="">Select a location</option>
               {locations.map(location => (
@@ -214,6 +216,7 @@ export const LocationRates: React.FC = () => {
               onChange={(e) => setSelectedPassType(e.target.value)}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
               required
+              disabled={isLoading}
             >
               <option value="">Select a pass type</option>
               <option value="regular">Regular</option>
@@ -231,6 +234,7 @@ export const LocationRates: React.FC = () => {
               onChange={(e) => setBaseRate(e.target.value)}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
               required
+              disabled={isLoading}
             />
           </div>
 
@@ -243,6 +247,7 @@ export const LocationRates: React.FC = () => {
               onChange={(e) => setEveningRate(e.target.value)}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
               required
+              disabled={isLoading}
             />
           </div>
 
@@ -255,6 +260,7 @@ export const LocationRates: React.FC = () => {
               onChange={(e) => setNightRate(e.target.value)}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
               required
+              disabled={isLoading}
             />
           </div>
 
@@ -267,6 +273,7 @@ export const LocationRates: React.FC = () => {
               onChange={(e) => setWeekendRate(e.target.value)}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
               required
+              disabled={isLoading}
             />
           </div>
 
@@ -279,6 +286,7 @@ export const LocationRates: React.FC = () => {
               onChange={(e) => setHolidayRate(e.target.value)}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
               required
+              disabled={isLoading}
             />
           </div>
 
@@ -291,6 +299,7 @@ export const LocationRates: React.FC = () => {
               onChange={(e) => setNewYearsEveRate(e.target.value)}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
               required
+              disabled={isLoading}
             />
           </div>
         </div>
@@ -298,9 +307,10 @@ export const LocationRates: React.FC = () => {
         <div className="mt-4">
           <button
             type="submit"
-            className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+            className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50"
+            disabled={isLoading}
           >
-            Add Rate
+            {isLoading ? 'Adding...' : 'Add Rate'}
           </button>
         </div>
       </form>
@@ -336,7 +346,8 @@ export const LocationRates: React.FC = () => {
                 <td className="px-4 py-2 border">
                   <button
                     onClick={() => handleDelete(rate.id)}
-                    className="text-red-500 hover:text-red-700"
+                    className="text-red-500 hover:text-red-700 disabled:opacity-50"
+                    disabled={isLoading}
                   >
                     Delete
                   </button>
