@@ -255,7 +255,7 @@ class AutoApproval(Base):
     __tablename__ = "auto_approval"
 
     id = Column(Integer, primary_key=True, index=True)
-    employee_id = Column(String(50), index=True)
+    employee_id = Column(String(50), ForeignKey("users.username"), index=True)
     location = Column(String(100), index=True)
     auto_approve = Column(Boolean, default=True)
     priority_hours = Column(Integer, default=3)
@@ -263,7 +263,7 @@ class AutoApproval(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    employee = relationship("User")
+    employee = relationship("User", foreign_keys=[employee_id])
 
 class AutoApprovalGlobalConfig(Base):
     __tablename__ = "auto_approval_global_config"
