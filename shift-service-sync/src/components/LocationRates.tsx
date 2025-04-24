@@ -216,9 +216,9 @@ export const LocationRates: React.FC = () => {
               required
             >
               <option value="">Select a pass type</option>
-              <option value="regular">Regular</option>
-              <option value="premium">Premium</option>
-              <option value="vip">VIP</option>
+              <option value="green">Green</option>
+              <option value="blue">Blue</option>
+           
             </select>
           </div>
 
