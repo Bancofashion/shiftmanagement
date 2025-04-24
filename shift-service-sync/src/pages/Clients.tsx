@@ -22,6 +22,8 @@ import {
 import { toast } from 'sonner';
 import { Building2 } from 'lucide-react';
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 interface Opdrachtgever {
   id: number;
   naam: string;
@@ -61,7 +63,7 @@ export default function Clients() {
 
   const fetchClients = async () => {
     try {
-      const response = await fetch('http://localhost:8000/opdrachtgevers/', {
+      const response = await fetch(`${API_URL}/opdrachtgevers/`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -81,8 +83,8 @@ export default function Clients() {
     e.preventDefault();
     try {
       const url = selectedClient
-        ? `http://localhost:8000/opdrachtgevers/${selectedClient.id}`
-        : 'http://localhost:8000/opdrachtgevers/';
+        ? `${API_URL}/opdrachtgevers/${selectedClient.id}`
+        : `${API_URL}/opdrachtgevers/`;
       const method = selectedClient ? 'PUT' : 'POST';
 
       const response = await fetch(url, {
@@ -112,7 +114,7 @@ export default function Clients() {
     if (!window.confirm('Are you sure you want to delete this client?')) return;
 
     try {
-      const response = await fetch(`http://localhost:8000/opdrachtgevers/${id}`, {
+      const response = await fetch(`${API_URL}/opdrachtgevers/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`

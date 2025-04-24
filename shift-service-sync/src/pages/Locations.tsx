@@ -28,6 +28,8 @@ import {
 } from '../components/ui/select';
 import { toast } from 'sonner';
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 interface Location {
   id: number;
   naam: string;
@@ -70,7 +72,7 @@ export default function Locations() {
 
   const fetchLocations = async () => {
     try {
-      const response = await fetch('http://localhost:8000/locations', {
+      const response = await fetch(`${API_URL}/locations`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -91,7 +93,7 @@ export default function Locations() {
 
   const fetchOpdrachtgevers = async () => {
     try {
-      const response = await fetch('http://localhost:8000/opdrachtgevers', {
+      const response = await fetch(`${API_URL}/opdrachtgevers`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -114,8 +116,8 @@ export default function Locations() {
     e.preventDefault();
     try {
       const url = selectedLocation
-        ? `http://localhost:8000/locations/${selectedLocation.id}`
-        : 'http://localhost:8000/locations';
+        ? `${API_URL}/locations/${selectedLocation.id}`
+        : `${API_URL}/locations`;
       const method = selectedLocation ? 'PUT' : 'POST';
 
       const response = await fetch(url, {
@@ -148,7 +150,7 @@ export default function Locations() {
     if (!window.confirm('Are you sure you want to delete this location?')) return;
 
     try {
-      const response = await fetch(`http://localhost:8000/locations/${id}`, {
+      const response = await fetch(`${API_URL}/locations/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
