@@ -16,6 +16,8 @@ export interface Shift {
   location_id: number;
   location?: string;
   location_details?: {
+    id: number;
+    naam: string;
     stad: string;
     provincie: string;
     adres: string;
@@ -23,9 +25,12 @@ export interface Shift {
   status: StatusType;
   employee_id?: string;
   title: string;
+  titel?: string;
   required_profile?: string;
   created_at?: string;
   updated_at?: string;
+  assigned_by_admin?: boolean;
+  reiskilometers?: number;
 }
 
 export interface ServiceRequest {

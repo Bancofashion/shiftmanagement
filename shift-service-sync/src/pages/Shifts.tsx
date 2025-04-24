@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { shiftsApi, employeesApi } from '@/lib/api';
+import { shiftsApi, employeesApi, opdrachtgeversApi } from '@/lib/api';
 import { 
   Table, 
   TableBody, 
@@ -124,6 +124,12 @@ export default function Shifts() {
       console.log('Employees data updated:', employees);
     }
   }, [employees]);
+
+  // Query for opdrachtgevers
+  const { data: opdrachtgevers } = useQuery({
+    queryKey: ['opdrachtgevers'],
+    queryFn: opdrachtgeversApi.getAll,
+  });
 
   const handleEdit = (shift: Shift) => {
     setSelectedShift(shift);
