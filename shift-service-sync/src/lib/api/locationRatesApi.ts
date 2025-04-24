@@ -173,4 +173,7 @@ export class LocationRatesApi {
       }
     });
   }
-} 
+}
+
+// Export a singleton instance
+export const locationRatesApi = new LocationRatesApi(); 
