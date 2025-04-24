@@ -145,8 +145,20 @@ export const LocationRates: React.FC = () => {
       setWeekendRate('');
       setHolidayRate('');
       setNewYearsEveRate('');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating rate:', error);
+      let errorMessage = 'Failed to create rate';
+      
+      if (error.response?.data?.detail) {
+        errorMessage = typeof error.response.data.detail === 'string' 
+          ? error.response.data.detail 
+          : JSON.stringify(error.response.data.detail);
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      setError(errorMessage);
+      setValidationErrors([errorMessage]);
     }
   };
 
