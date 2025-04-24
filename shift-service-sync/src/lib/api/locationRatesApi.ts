@@ -112,4 +112,40 @@ export class LocationRatesApi {
       throw errorResponse;
     }
   }
+
+  async getAll(): Promise<LocationRate[]> {
+    return this.getRates();
+  }
+
+  async create(rate: LocationRateCreate): Promise<LocationRate> {
+    return this.createRate(rate);
+  }
+
+  async getById(id: number): Promise<LocationRate> {
+    try {
+      const url = `${baseUrl}/location-rates/${id}`;
+      const response = await api.get<LocationRate>(url);
+      return response.data;
+    } catch (error: any) {
+      console.error('Error fetching location rate:', {
+        message: error.message,
+        status: error.response?.status,
+        data: error.response?.data,
+        config: error.config
+      });
+      
+      if (error.response?.data?.detail) {
+        throw new Error(JSON.stringify(error.response.data.detail));
+      }
+      throw error;
+    }
+  }
+
+  async update(id: number, rate: LocationRate): Promise<LocationRate> {
+    return this.updateRate(id, rate);
+  }
+
+  async delete(id: number): Promise<void> {
+    return this.deleteRate(id);
+  }
 } 

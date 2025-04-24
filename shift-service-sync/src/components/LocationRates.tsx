@@ -123,16 +123,23 @@ export const LocationRates: React.FC = () => {
     if (!selectedLocation || !selectedPassType) return;
 
     try {
-      // Ensure all rates are properly formatted numbers
+      // Validate rates
+      const baseRateNum = parseFloat(baseRate);
+      if (isNaN(baseRateNum) || baseRateNum <= 0) {
+        setError('Base rate must be a positive number');
+        return;
+      }
+
+      // Calculate rates with exact multipliers
       const formattedRates = {
         location_id: selectedLocation,
         pass_type: selectedPassType,
-        base_rate: Number(parseFloat(baseRate).toFixed(2)),
-        evening_rate: Number(parseFloat(eveningRate).toFixed(2)),
-        night_rate: Number(parseFloat(nightRate).toFixed(2)),
-        weekend_rate: Number(parseFloat(weekendRate).toFixed(2)),
-        holiday_rate: Number(parseFloat(holidayRate).toFixed(2)),
-        new_years_eve_rate: Number(parseFloat(newYearsEveRate).toFixed(2))
+        base_rate: baseRateNum,
+        evening_rate: Number((baseRateNum * 1.1).toFixed(2)),
+        night_rate: Number((baseRateNum * 1.2).toFixed(2)),
+        weekend_rate: Number((baseRateNum * 1.35).toFixed(2)),
+        holiday_rate: Number((baseRateNum * 1.5).toFixed(2)),
+        new_years_eve_rate: Number((baseRateNum * 2).toFixed(2))
       };
 
       console.log('Submitting rates:', formattedRates);
