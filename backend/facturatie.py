@@ -13,7 +13,7 @@ from auth import require_roles, get_current_user
 from io import BytesIO
 from sqlalchemy.orm import Session, joinedload
 from database import get_db
-from models import Factuur, Opdrachtgever, LocationRate, LocationRateCreate, LocationRatePydantic
+from models import Factuur, Opdrachtgever, LocationRate, LocationRateCreate, LocationRatePydantic, Location
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
 import logging
