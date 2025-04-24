@@ -37,12 +37,25 @@ def fix_indexes():
             connection.execute(text("EXECUTE stmt"))
             connection.execute(text("DEALLOCATE PREPARE stmt"))
 
-            # Add generated column for year
+            # Check if column exists
             connection.execute(text("""
-                ALTER TABLE facturen 
-                ADD COLUMN IF NOT EXISTS factuur_year VARCHAR(4) 
-                GENERATED ALWAYS AS (LEFT(factuurnummer, 4)) STORED
+                SELECT COUNT(1) INTO @column_exists 
+                FROM INFORMATION_SCHEMA.COLUMNS 
+                WHERE table_schema = :db_name 
+                AND table_name = 'facturen' 
+                AND column_name = 'factuur_year'
+            """), {"db_name": DB_NAME})
+
+            # Add column if it doesn't exist
+            connection.execute(text("""
+                SET @sql = IF(@column_exists = 0, 
+                    'ALTER TABLE facturen ADD COLUMN factuur_year VARCHAR(4) GENERATED ALWAYS AS (LEFT(factuurnummer, 4)) STORED',
+                    'SELECT 1')
             """))
+            
+            connection.execute(text("PREPARE stmt FROM @sql"))
+            connection.execute(text("EXECUTE stmt"))
+            connection.execute(text("DEALLOCATE PREPARE stmt"))
 
             # Create index on the generated column and opdrachtgever_id
             connection.execute(text("""
