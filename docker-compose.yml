@@ -1,7 +1,31 @@
 version: '3.8'
 
 services:
-  mysql:
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=mysql://planner_user:planner_password@db:3306/planner_db
+      - SECRET_KEY=kY2hkWFErBgPf3t5
+      - DEBUG=False
+      - ALLOWED_HOSTS=69.28.88.205,localhost
+      - CORS_ORIGINS=http://69.28.88.205:80,http://localhost:80
+    depends_on:
+      - db
+    networks:
+      - planner_network
+
+  frontend:
+    build: ./shift-service-sync
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - planner_network
+
+  db:
     image: mysql:8.0
     container_name: planner_mysql
     environment:
@@ -19,24 +43,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    networks:
-      - planner_network
-
-  backend:
-    build: 
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: planner_backend
-    depends_on:
-      mysql:
-        condition: service_healthy
-    environment:
-      DATABASE_URL: mysql://planner_user:planner_password@mysql:3306/planner_db
-    ports:
-      - "8000:8000"
-    volumes:
-      - ./backend:/app
-    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
     networks:
       - planner_network
 
