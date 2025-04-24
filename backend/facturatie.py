@@ -575,8 +575,7 @@ async def create_location_rate(
             raise HTTPException(status_code=401, detail="Not authenticated")
             
         # Check if user has admin role
-        user_roles = [role.name for role in current_user.roles]
-        if 'admin' not in user_roles:
+        if not any(role.name == 'admin' for role in current_user.roles):
             raise HTTPException(status_code=403, detail="Access denied. Admin privileges required.")
         
         # Validate location exists
