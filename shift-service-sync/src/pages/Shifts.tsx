@@ -376,17 +376,7 @@ function AddShiftDialog({ open, onOpenChange, onSuccess }: AddShiftDialogProps) 
   // Query for clients (opdrachtgevers)
   const { data: clients, isLoading: isLoadingClients } = useQuery({
     queryKey: ['clients'],
-    queryFn: async () => {
-      const response = await fetch('http://localhost:8000/opdrachtgevers/', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      if (!response.ok) {
-        throw new Error('Failed to fetch clients');
-      }
-      return response.json();
-    },
+    queryFn: opdrachtgeversApi.getAll,
   });
 
   // Query for locations based on selected client
@@ -394,15 +384,7 @@ function AddShiftDialog({ open, onOpenChange, onSuccess }: AddShiftDialogProps) 
     queryKey: ['locations', selectedClientId],
     queryFn: async () => {
       if (!selectedClientId) return [];
-      const response = await fetch(`http://localhost:8000/locations/opdrachtgever/${selectedClientId}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      if (!response.ok) {
-        throw new Error('Failed to fetch locations');
-      }
-      return response.json();
+      return opdrachtgeversApi.getLocations(parseInt(selectedClientId));
     },
     enabled: !!selectedClientId,
   });
