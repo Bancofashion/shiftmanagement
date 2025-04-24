@@ -31,6 +31,9 @@ export interface Shift {
   updated_at?: string;
   assigned_by_admin?: boolean;
   reiskilometers?: number;
+  stad?: string;
+  provincie?: string;
+  adres?: string;
 }
 
 export interface ServiceRequest {

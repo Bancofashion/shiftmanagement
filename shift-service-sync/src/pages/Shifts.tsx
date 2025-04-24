@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { shiftsApi, employeesApi, opdrachtgeversApi } from '@/lib/api';
+import { shiftsApi, employeesApi, opdrachtgeversApi, locationsApi } from '@/lib/api';
 import { 
   Table, 
   TableBody, 
@@ -384,7 +384,7 @@ function AddShiftDialog({ open, onOpenChange, onSuccess }: AddShiftDialogProps) 
     queryKey: ['locations', selectedClientId],
     queryFn: async () => {
       if (!selectedClientId) return [];
-      return opdrachtgeversApi.getLocations(parseInt(selectedClientId));
+      return locationsApi.getByOpdrachtgever(selectedClientId);
     },
     enabled: !!selectedClientId,
   });
